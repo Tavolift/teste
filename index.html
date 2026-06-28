@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treino — João Silva</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f3;
+    color: #1a1a18;
+    min-height: 100vh;
+  }
+
+  .app {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* Header */
+  .header { margin-bottom: 1.5rem; }
+  .header h1 { font-size: 22px; font-weight: 600; color: #1a1a18; }
+  .header p { font-size: 14px; color: #6b6b67; margin-top: 4px; }
+
+  /* Client card */
+  .client-card {
+    background: #fff;
+    border: 1px solid #e5e5e2;
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #dbeafe;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 14px; color: #1d4ed8;
+    flex-shrink: 0;
+  }
+  .client-info p { font-weight: 500; font-size: 15px; color: #1a1a18; }
+  .client-info span { font-size: 13px; color: #6b6b67; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .tab {
+    padding: 7px 18px; border-radius: 20px; font-size: 13px; font-weight: 500;
+    border: 1px solid #e5e5e2; background: #fff;
+    color: #6b6b67; cursor: pointer; transition: all 0.15s;
+  }
+  .tab.active {
+    background: #dbeafe; color: #1d4ed8; border-color: #93c5fd;
+  }
+  .tab:hover:not(.active) { background: #f5f5f3; border-color: #c8c8c4; color: #1a1a18; }
+
+  /* Section label */
+  .section-label {
+    font-size: 11px; font-weight: 600; color: #a0a09c;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    margin-bottom: 8px; margin-top: 1.5rem;
+  }
+  .section-label:first-of-type { margin-top: 0; }
+
+  /* Table */
+  .exercise-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #e5e5e2; margin-bottom: 4px; }
+  .exercise-table thead th {
+    font-size: 11px; font-weight: 600; color: #a0a09c;
+    text-align: left; padding: 8px 12px;
+    border-bottom: 1px solid #e5e5e2;
+    background: #fafaf8;
+  }
+  .exercise-table thead th:not(:first-child) { text-align: center; width: 72px; }
+
+  .ex-row { border-bottom: 1px solid #f0f0ee; transition: background 0.1s; }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-row:hover { background: #fafaf8; }
+  .ex-row td { padding: 11px 12px; font-size: 14px; color: #1a1a18; vertical-align: middle; }
+  .ex-row td:not(:first-child) { text-align: center; color: #6b6b67; font-size: 13px; }
+
+  .ex-name { display: flex; flex-direction: column; gap: 3px; }
+  .ex-name-btn {
+    color: #1d4ed8; font-weight: 500; border-bottom: 1px dashed #93c5fd;
+    padding-bottom: 1px; cursor: pointer; display: inline-block;
+    background: none; border-left: none; border-right: none; border-top: none;
+    font-family: inherit; font-size: 14px; text-align: left;
+    transition: opacity 0.15s;
+  }
+  .ex-name-btn:hover { opacity: 0.7; }
+  .obs { font-size: 11px; color: #a0a09c; font-style: italic; }
+
+  /* Overlay */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45); z-index: 100;
+    align-items: center; justify-content: center; padding: 1rem;
+  }
+  .overlay.open { display: flex; }
+
+  /* Popup */
+  .popup {
+    background: #fff; border-radius: 16px;
+    border: 1px solid #e5e5e2;
+    width: 100%; max-width: 440px;
+    overflow: hidden;
+    animation: popIn 0.18s ease;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+  @keyframes popIn {
+    from { transform: scale(0.93); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+
+  .popup-img {
+    width: 100%; height: 160px;
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 56px;
+  }
+
+  .popup-body { padding: 1.25rem 1.25rem 0; }
+  .popup-muscle {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.07em;
+    text-transform: uppercase; color: #1d4ed8; margin-bottom: 6px;
+  }
+  .popup-title { font-size: 19px; font-weight: 600; color: #1a1a18; margin-bottom: 10px; }
+  .popup-desc { font-size: 14px; color: #4b4b48; line-height: 1.65; margin-bottom: 1rem; }
+
+  .popup-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 8px; margin-bottom: 1rem;
+  }
+  .stat-box {
+    background: #f5f5f3; border-radius: 8px;
+    padding: 10px; text-align: center;
+    border: 1px solid #e5e5e2;
+  }
+  .stat-box .val { font-size: 16px; font-weight: 600; color: #1a1a18; }
+  .stat-box .lbl { font-size: 11px; color: #a0a09c; margin-top: 2px; }
+
+  .popup-tip {
+    background: #fffbeb; border-radius: 8px; border: 1px solid #fde68a;
+    padding: 10px 12px; font-size: 13px; color: #92400e; line-height: 1.55;
+    margin-bottom: 1.25rem;
+  }
+  .popup-tip strong { color: #78350f; }
+
+  .popup-footer {
+    padding: 0 1.25rem 1.25rem;
+    display: flex; justify-content: flex-end;
+  }
+  .btn-close {
+    padding: 9px 24px; border-radius: 8px;
+    border: 1px solid #d1d5db; background: #f9fafb;
+    font-size: 14px; color: #374151; cursor: pointer;
+    font-family: inherit; font-weight: 500;
+    transition: background 0.12s;
+  }
+  .btn-close:hover { background: #f3f4f6; }
+
+  /* Mobile adjustments */
+  @media (max-width: 480px) {
+    .app { padding: 1.25rem 0.75rem 3rem; }
+    .popup { border-radius: 14px; }
+    .popup-stats { gap: 6px; }
+    .stat-box .val { font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <div class="header">
+    <h1>Plano de treino</h1>
+    <p>Clique no nome do exercício para ver detalhes e execução</p>
+  </div>
+
+  <div class="client-card">
+    <div class="avatar">JS</div>
+    <div class="client-info">
+      <p>João Silva</p>
+      <span>Hipertrofia · 3x por semana · Intermediário</span>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs">
+    <div class="tab active" onclick="switchDay(0)">Treino A</div>
+    <div class="tab" onclick="switchDay(1)">Treino B</div>
+    <div class="tab" onclick="switchDay(2)">Treino C</div>
+  </div>
+
+  <div id="day-content"></div>
+</div>
+
+<!-- Overlay / Popup -->
+<div class="overlay" id="overlay" onclick="closePopup(event)">
+  <div class="popup" id="popup">
+    <div class="popup-img" id="popup-emoji"></div>
+    <div class="popup-body">
+      <div class="popup-muscle" id="popup-muscle"></div>
+      <div class="popup-title" id="popup-title"></div>
+      <div class="popup-desc" id="popup-desc"></div>
+      <div class="popup-stats" id="popup-stats"></div>
+      <div class="popup-tip" id="popup-tip"></div>
+    </div>
+    <div class="popup-footer">
+      <button class="btn-close" onclick="document.getElementById('overlay').classList.remove('open')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const days = [
+  {
+    label: "Treino A — Peito e Tríceps",
+    groups: [
+      {
+        name: "Peito",
+        exercises: [
+          {
+            name: "Supino reto com barra",
+            sets: 4, reps: "8–10", rest: "90s", obs: "",
+            muscle: "Peitoral maior", emoji: "🏋️",
+            desc: "Deite no banco com os pés apoiados no chão. Segure a barra na largura dos ombros, desça até o peito de forma controlada e empurre de volta ao topo sem travar o cotovelo.",
+            tip: "Mantenha as escápulas retraídas e os cotovelos a ~45° do tronco para preservar o ombro."
+          },
+          {
+            name: "Crucifixo inclinado com halteres",
+            sets: 3, reps: "10–12", rest: "60s", obs: "",
+            muscle: "Peitoral (cabeça clavicular)", emoji: "💪",
+            desc: "No banco inclinado a 30°, segure os halteres com palmas voltadas para dentro. Abra os braços em arco até sentir o alongamento e feche no topo sem tocar os halteres.",
+            tip: "Não abra demais os cotovelos — pare quando sentirem tensão no peitoral, não no ombro."
+          },
+          {
+            name: "Crossover na polia alta",
+            sets: 3, reps: "12–15", rest: "60s", obs: "Finalizar com 1 série até a falha",
+            muscle: "Peitoral (adução)", emoji: "🔄",
+            desc: "Em pé entre as polias altas, pegue as alças e traga os braços para frente e para baixo em arco. Contraia o peitoral no ponto de cruzamento.",
+            tip: "O movimento é de abraço, não de press. Foque na contração, não no peso."
+          }
+        ]
+      },
+      {
+        name: "Tríceps",
+        exercises: [
+          {
+            name: "Tríceps na polia (corda)",
+            sets: 3, reps: "10–12", rest: "60s", obs: "",
+            muscle: "Tríceps braquial", emoji: "🎯",
+            desc: "Em pé de frente para a polia alta, segure a corda e empurre para baixo até a extensão total. Separe as pontas da corda ao final do movimento para maximizar a contração.",
+            tip: "Não use o peso do corpo para ajudar — o tronco permanece fixo."
+          },
+          {
+            name: "Tríceps coice com haltere",
+            sets: 3, reps: "12–15", rest: "60s", obs: "",
+            muscle: "Tríceps (cabeça longa)", emoji: "⚡",
+            desc: "Apoie um joelho e a mão no banco. Com o cotovelo fixo ao lado do tronco, estenda o braço para trás. Retorne controlado sem balançar.",
+            tip: "Cabeça longa responde melhor com o braço atrás do tronco — esse exercício é feito para isso."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label: "Treino B — Costas e Bíceps",
+    groups: [
+      {
+        name: "Costas",
+        exercises: [
+          {
+            name: "Puxada frontal aberta",
+            sets: 4, reps: "8–10", rest: "90s", obs: "",
+            muscle: "Latíssimo do dorso", emoji: "🔝",
+            desc: "Sentado na polia alta, segure a barra larga acima da cabeça. Puxe até a altura do peito, conduzindo os cotovelos para baixo e para dentro. Controle a subida.",
+            tip: "Imagine que está dobrando a barra para ativar o grande dorsal em vez de focar só nos braços."
+          },
+          {
+            name: "Remada curvada com barra",
+            sets: 4, reps: "8–10", rest: "90s", obs: "",
+            muscle: "Romboides + grande dorsal", emoji: "💼",
+            desc: "Com joelhos levemente flexionados e tronco inclinado a ~45°, puxe a barra até o abdômen. Retraia as escápulas no topo e desça controlado.",
+            tip: "Não arredonde a lombar. A posição estável do tronco é mais importante que o peso."
+          },
+          {
+            name: "Serrote com haltere",
+            sets: 3, reps: "10–12", rest: "60s", obs: "Cada lado",
+            muscle: "Grande dorsal (unilateral)", emoji: "🪚",
+            desc: "Apoie joelho e mão no banco. Com o haltere na mão livre, puxe até o quadril conduzindo o cotovelo para cima e para trás. Retorne lento.",
+            tip: "Ótimo para corrigir assimetrias. Não gire o tronco — o movimento é só do braço."
+          }
+        ]
+      },
+      {
+        name: "Bíceps",
+        exercises: [
+          {
+            name: "Rosca direta com barra EZ",
+            sets: 3, reps: "10–12", rest: "60s", obs: "",
+            muscle: "Bíceps braquial", emoji: "💪",
+            desc: "Em pé, segure a barra EZ com pegada supinada. Flexione os cotovelos trazendo a barra até a altura dos ombros. Desça em 3 segundos.",
+            tip: "Cotovelos fixos ao lado do tronco o tempo todo. O que sobe e desce é só o antebraço."
+          },
+          {
+            name: "Rosca martelo com haltere",
+            sets: 3, reps: "10–12", rest: "60s", obs: "",
+            muscle: "Bíceps (cabeça longa) + braquial", emoji: "🔨",
+            desc: "Com os halteres em pegada neutra (polegar para cima), flexione alternando os braços. A pegada neutra ativa mais a cabeça longa e o braquial.",
+            tip: "Excelente para dar volume e \"pico\" ao bíceps. Alterne os braços para manter o foco."
+          }
+        ]
+      }
+    ]
+  },
+  {
+    label: "Treino C — Pernas e Core",
+    groups: [
+      {
+        name: "Quadríceps e Posterior",
+        exercises: [
+          {
+            name: "Agachamento livre com barra",
+            sets: 4, reps: "6–8", rest: "120s", obs: "Exercício principal",
+            muscle: "Quadríceps + glúteos", emoji: "🏆",
+            desc: "Barra nos trapézios, pés na largura dos ombros, pontas levemente para fora. Desça até as coxas ficarem paralelas ao chão (ou abaixo), e suba expirando.",
+            tip: "Joelhos seguem a direção dos pés — não deixe colapsarem para dentro. Lombar neutra sempre."
+          },
+          {
+            name: "Leg press 45°",
+            sets: 3, reps: "10–12", rest: "90s", obs: "",
+            muscle: "Quadríceps + glúteos", emoji: "🦵",
+            desc: "Posicione os pés no meio da plataforma na largura dos ombros. Desça até 90° no joelho e empurre sem travar as pernas no topo.",
+            tip: "Pés mais altos = mais glúteo. Pés mais baixos = mais quad. Escolha de acordo com seu objetivo."
+          },
+          {
+            name: "Cadeira extensora",
+            sets: 3, reps: "12–15", rest: "60s", obs: "Finalizar drop set na última série",
+            muscle: "Quadríceps (isolamento)", emoji: "⚡",
+            desc: "Sentado na cadeira, estenda as pernas até a extensão total. Segure 1 segundo no topo e retorne lento em 3 segundos.",
+            tip: "Ótimo finalizador para o quad. A contração isométrica no topo faz diferença — não negligencie."
+          },
+          {
+            name: "Mesa flexora",
+            sets: 3, reps: "10–12", rest: "60s", obs: "",
+            muscle: "Isquiotibiais", emoji: "🔁",
+            desc: "Deitado de bruços, posicione o tornozelo abaixo do rolo. Flexione os joelhos trazendo o calcanhar em direção ao glúteo. Desça controlado.",
+            tip: "Não pique na subida. A fase excêntrica lenta é onde o músculo cresce."
+          }
+        ]
+      },
+      {
+        name: "Core",
+        exercises: [
+          {
+            name: "Prancha isométrica",
+            sets: 3, reps: "40–60s", rest: "45s", obs: "",
+            muscle: "Core profundo + estabilizadores", emoji: "🧘",
+            desc: "Apoie nos antebraços e pontas dos pés. Corpo em linha reta da cabeça ao calcanhar. Contraia o abdômen e os glúteos durante toda a série.",
+            tip: "Não deixe o quadril subir ou afundar. Respire normalmente — não prenda a respiração."
+          },
+          {
+            name: "Abdominal bicicleta",
+            sets: 3, reps: "20 rep", rest: "45s", obs: "Controlado, sem puxar o pescoço",
+            muscle: "Oblíquos + reto abdominal", emoji: "🚴",
+            desc: "Deitado, mãos atrás da cabeça, joelhos dobrados. Leve o cotovelo direito ao joelho esquerdo enquanto estende a perna direita. Alterne lado a lado.",
+            tip: "Movimento de rotação do tronco, não de pescoço. O cotovelo não precisa tocar o joelho."
+          }
+        ]
+      }
+    ]
+  }
+];
+
+let currentDay = 0;
+
+function switchDay(i) {
+  currentDay = i;
+  document.querySelectorAll('.tab').forEach((t, idx) => t.classList.toggle('active', idx === i));
+  renderDay();
+}
+
+function renderDay() {
+  const day = days[currentDay];
+  let html = '';
+  day.groups.forEach(group => {
+    html += `<div class="section-label">${group.name}</div>`;
+    html += `<table class="exercise-table">
+      <thead><tr>
+        <th>Exercício</th>
+        <th>Séries</th>
+        <th>Reps</th>
+        <th>Descanso</th>
+      </tr></thead><tbody>`;
+    group.exercises.forEach((ex, ei) => {
+      const gIdx = days[currentDay].groups.indexOf(group);
+      html += `<tr class="ex-row">
+        <td>
+          <div class="ex-name">
+            <button class="ex-name-btn" onclick="openPopup(${currentDay},${ei},${gIdx})">${ex.name}</button>
+            ${ex.obs ? `<span class="obs">${ex.obs}</span>` : ''}
+          </div>
+        </td>
+        <td>${ex.sets}</td>
+        <td>${ex.reps}</td>
+        <td>${ex.rest}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+  });
+  document.getElementById('day-content').innerHTML = html;
+}
+
+function openPopup(dayIdx, exIdx, groupIdx) {
+  const ex = days[dayIdx].groups[groupIdx].exercises[exIdx];
+  document.getElementById('popup-emoji').textContent = ex.emoji;
+  document.getElementById('popup-muscle').textContent = ex.muscle;
+  document.getElementById('popup-title').textContent = ex.name;
+  document.getElementById('popup-desc').textContent = ex.desc;
+  document.getElementById('popup-stats').innerHTML = `
+    <div class="stat-box"><div class="val">${ex.sets}</div><div class="lbl">Séries</div></div>
+    <div class="stat-box"><div class="val">${ex.reps}</div><div class="lbl">Repetições</div></div>
+    <div class="stat-box"><div class="val">${ex.rest}</div><div class="lbl">Descanso</div></div>
+  `;
+  document.getElementById('popup-tip').innerHTML = `<strong>Dica do coach:</strong> ${ex.tip}`;
+  document.getElementById('overlay').classList.add('open');
+}
+
+function closePopup(e) {
+  if (e.target === document.getElementById('overlay')) {
+    document.getElementById('overlay').classList.remove('open');
+  }
+}
+
+renderDay();
+</script>
+</body>
+</html>
